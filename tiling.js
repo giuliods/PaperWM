@@ -2279,6 +2279,7 @@ function insertWindow(metaWindow, {existing}) {
         return;
     }
 
+    let space = spaces.spaceOfWindow(metaWindow);
     let actor = metaWindow.get_compositor_private();
 
     let connectSizeChanged = (tiled) => {
@@ -2314,6 +2315,16 @@ function insertWindow(metaWindow, {existing}) {
             if (winprop.focus) {
                 Main.activateWindow(metaWindow);
             }
+            let {position, size} = winprop;
+
+            if (position) {
+                let [x, y] = position;
+                x = (Number.isInteger(x) && x) || Math.round(space.width*x)
+                y = (Number.isInteger(y) && y) || Math.round(space.height*y)
+                x += space.monitor.x
+                y += space.monitor.y
+                metaWindow.move_frame(true, x, y);
+            }
         }
 
         if (addToScratch) {
@@ -2338,7 +2349,6 @@ function insertWindow(metaWindow, {existing}) {
         return;
     }
 
-    let space = spaces.spaceOfWindow(metaWindow);
     if (!add_filter(metaWindow)) {
         connectSizeChanged();
         space.addFloating(metaWindow);
