@@ -1580,6 +1580,10 @@ class Spaces extends Map {
 
         this._animateToSpaceOrdered(this.selectedSpace, false);
 
+        if (Main.panel.statusArea.appMenu) {
+            Main.panel.statusArea.appMenu.container.hide();
+        }
+
         let selected = this.selectedSpace.selectedWindow;
         if (selected && selected.fullscreen) {
             Tweener.addTween(selected.clone, {
