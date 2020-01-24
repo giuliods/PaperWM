@@ -430,7 +430,7 @@ var MoveGrab = class MoveGrab {
                 actor.set_scale(1, 1);
                 actor.set_pivot_point(0, 0);
 
-                Tiling.animateWindow(metaWindow);
+                // Tiling.animateWindow(metaWindow);
                 Tweener.addTween(clone, {
                     time: prefs.animation_time,
                     scale_x: 1,
@@ -472,10 +472,6 @@ var MoveGrab = class MoveGrab {
         } else if (this.initialSpace.indexOf(metaWindow) !== -1){
             let space = this.initialSpace;
             space.targetX = space.cloneContainer.x;
-            clone.targetX = frame.x - space.monitor.x - space.targetX;
-            clone.targetY = frame.y - space.monitor.y;
-            clone.set_position(clone.targetX,
-                               clone.targetY);
 
             actor.set_scale(1, 1);
             actor.set_pivot_point(0, 0);
