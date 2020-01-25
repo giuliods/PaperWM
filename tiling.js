@@ -167,9 +167,10 @@ class Space extends Array {
                     ensureViewport(windowAtPoint, this);
                     inGrab = new Extension.imports.grab.MoveGrab(windowAtPoint, Meta.GrabOp.MOVING, this);
                     inGrab.begin();
+                } else {
+                    spaces.selectedSpace = this;
+                    Navigator.getNavigator().finish();
                 }
-                // spaces.selectedSpace = this;
-                // nav.finish();
             });
 
         this.signals.connect(
