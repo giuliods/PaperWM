@@ -176,6 +176,8 @@ class Space extends Array {
         this.signals.connect(
             background, 'scroll-event',
             (actor, event) => {
+                if (!inGrab && !Navigator.navigating)
+                    return;
                 let dir = event.get_scroll_direction();
                 if (dir === Clutter.ScrollDirection.SMOOTH)
                     return;
