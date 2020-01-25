@@ -160,7 +160,8 @@ class Space extends Array {
                 if (inGrab) {
                     return;
                 }
-                let [x, y] = event.get_coords();
+                let [gx, gy, $] = global.get_pointer();
+                let [ok, x, y] = this.actor.transform_stage_point(gx, gy);
                 let windowAtPoint = !Gestures.gliding && this.getWindowAtPoint(x, y);
                 if (windowAtPoint) {
                     ensureViewport(windowAtPoint, this);
