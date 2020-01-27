@@ -196,11 +196,11 @@ class Space extends Array {
 
                 switch (dir) {
                     case Clutter.ScrollDirection.LEFT:
-                    case Clutter.ScrollDirection.DOWN:
+                    case Clutter.ScrollDirection.UP:
                         this.switchLeft();
                         break;
                     case Clutter.ScrollDirection.RIGHT:
-                    case Clutter.ScrollDirection.UP:
+                    case Clutter.ScrollDirection.DOWN:
                         this.switchRight();
                         break;
                 }
