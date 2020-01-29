@@ -231,17 +231,23 @@ class WorkspaceMenu extends PanelMenu.Button {
         this.signals.connect(this.entry.label.clutter_text, 'text-changed',
                              changed);
 
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
         this._zenItem = new PopupMenu.PopupSwitchMenuItem('Hide top bar', false);
         this.menu.addMenuItem(this._zenItem);
         this._zenItem.connect('toggled', item => {
             Tiling.spaces.selectedSpace.settings.set_boolean('show-top-bar', !item.state);
         });
 
-        this.prefsIcon = createButton('preferences-system-symbolic', 'workspace preference');
+
+        this._prefItem = new PopupMenu.PopupImageMenuItem('Workspace preference', 'preferences-system-symbolic');
+        this.menu.addMenuItem(this._prefItem);
+
+        // this.prefsIcon = createButton('preferences-system-symbolic', 'workspace preference');
         // this.prevIcon = createButton('go-previous-symbolic', 'previous workspace setting');
         // this.nextIcon = createButton('go-next-symbolic', 'next workspace setting');
 
-        this.prefsIcon.connect('clicked', () => {
+        this._prefItem.connect('activate', () => {
             this.menu.close(true);
             let wi = workspaceManager.get_active_workspace_index();
             let env = GLib.get_environ();
@@ -253,25 +259,11 @@ class WorkspaceMenu extends PanelMenu.Button {
             }
         });
 
-        // this.nextIcon.connect('clicked', () => {
-        //     let space = Tiling.cycleWorkspaceSettings(-1);
-        //     this.entry.label.text = space.name;
-        //     menu.nextIcon.grab_key_focus();
-        // });
-        // this.prevIcon.connect('clicked', () => {
-        //     let space = Tiling.cycleWorkspaceSettings(1);
-        //     this.entry.label.text = space.name;
-        //     menu.prevIcon.grab_key_focus();
-        // });
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        // this.iconBox = new St.BoxLayout();
+        // this.menu.box.add(this.iconBox);
 
-        this.iconBox = new St.BoxLayout();
-        this.menu.box.add(this.iconBox);
-
-        // this.iconBox.add(this.prevIcon, { expand: true, x_fill: false });
-        this.iconBox.add(this.prefsIcon, { expand: true, x_fill: false });
-        // this.iconBox.add(this.nextIcon, { expand: true, x_fill: false });
+        // this.iconBox.add(this.prefsIcon, { expand: true, x_fill: false });
 
         // this.entry.actor.width = this.colors.actor.width;
         // this.colors.entry.actor.width = this.colors.actor.width;
