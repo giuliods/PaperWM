@@ -301,6 +301,7 @@ class Signals extends Map {
         if (ids) {
             if (id === null) {
                 ids.forEach(id => object.disconnect(id));
+                ids = [];
             } else {
                 object.disconnect(id);
                 let i = ids.indexOf(id);
@@ -308,7 +309,8 @@ class Signals extends Map {
                     ids.splice(i, 1);
                 }
             }
-            this.delete(object);
+            if (ids.length === 0)
+                this.delete(object);
         }
     }
 
