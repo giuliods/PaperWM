@@ -824,10 +824,12 @@ class Space extends Array {
         this.visible = [];
         const monitor = this.monitor;
         this.getWindows().forEach(w => {
-            if (!w.get_compositor_private())
+            let actor = w.get_compositor_private();
+            if (!actor)
                 return;
 
-            if (this.isPlaceable(w))
+            let placeable = this.isPlaceable(w);
+            if (placeable)
                 this.visible.push(w);
 
             // Guard against races between move_to and layout
@@ -841,11 +843,32 @@ class Space extends Array {
                 return;
 
             let clone = w.clone;
-            let x = monitor.x + Math.round(clone.x) + this.targetX;
-            let y = monitor.y + Math.round(clone.y);
             let f = w.get_frame_rect();
+            let x = clone.targetX + this.targetX;
+            let y = monitor.y + clone.targetY;
+            x = Math.max(stack_margin - f.width, x);
+            x = Math.min(this.width - stack_margin, x);
+            x += monitor.x;
+            // let b = w.get_frame_rect();
             if ((f.x !== x || f.y !== y)) {
+                placeable && w.acc++;
+                // uggg, this is really ugly, mutter/gnome-shell is not reacting correctly to our moves...
                 w.move_frame(true, x, y);
+                placeable && signals.connectOneShot(w, 'position-changed', () => {
+                    w.acc--;
+                    let f = w.get_frame_rect();
+                    x = clone.targetX + this.targetX;
+                    y = monitor.y + clone.targetY;
+                    x = Math.max(stack_margin - f.width, x);
+                    x = Math.min(this.width - stack_margin, x);
+                    x += monitor.x;
+                    log(`position-changed`, w, x, y, f.x, f.y)
+                    if (f.x !== x || f.y !== y) {
+                        log(`wrong position`, x, y, f.x, f.y)
+                        w.move_frame(true, x, y);
+                    }
+                })
+
             }
         });
 
@@ -2060,6 +2083,8 @@ function registerWindow(metaWindow) {
         utils.warn("window already registered", metaWindow.title);
         utils.print_stacktrace();
     }
+
+    metaWindow.acc = 0;
 
     if (metaWindow.is_override_redirect()) {
         return false;
