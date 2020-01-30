@@ -604,6 +604,21 @@ class Space extends Array {
             this.splice(index, 0, [metaWindow]);
         }
 
+        /*
+         * 3.35+ has a bug where move_frame sometimes triggers another move back to its original position. Make sure tiled windows are always positioned correctly.
+         */
+        this.signals.connect(metaWindow, 'position-changed', (w) => {
+            let f = w.get_frame_rect();
+            let clone = w.clone;
+            let x = clone.targetX + this.targetX;
+            let y = this.monitor.y + clone.targetY;
+            x = Math.min(this.width - stack_margin, Math.max(stack_margin - f.width, x));
+            x += this.monitor.x;
+            if (f.x !== x || f.y !== y) {
+                w.move_frame(true, x, y);
+            }
+        });
+
         metaWindow.clone.reparent(this.cloneContainer);
 
         // Make sure the cloneContainer is in a clean state (centered) before layout
@@ -619,6 +634,8 @@ class Space extends Array {
         let index = this.indexOf(metaWindow);
         if (index === -1)
             return this.removeFloating(metaWindow);
+
+        this.signals.disconnect(metaWindow);
 
         let selected = this.selectedWindow;
         if (selected === metaWindow) {
@@ -851,24 +868,7 @@ class Space extends Array {
             x += monitor.x;
             // let b = w.get_frame_rect();
             if ((f.x !== x || f.y !== y)) {
-                placeable && w.acc++;
-                // uggg, this is really ugly, mutter/gnome-shell is not reacting correctly to our moves...
                 w.move_frame(true, x, y);
-                placeable && signals.connectOneShot(w, 'position-changed', () => {
-                    w.acc--;
-                    let f = w.get_frame_rect();
-                    x = clone.targetX + this.targetX;
-                    y = monitor.y + clone.targetY;
-                    x = Math.max(stack_margin - f.width, x);
-                    x = Math.min(this.width - stack_margin, x);
-                    x += monitor.x;
-                    log(`position-changed`, w, x, y, f.x, f.y)
-                    if (f.x !== x || f.y !== y) {
-                        log(`wrong position`, x, y, f.x, f.y)
-                        w.move_frame(true, x, y);
-                    }
-                })
-
             }
         });
 
@@ -2083,8 +2083,6 @@ function registerWindow(metaWindow) {
         utils.warn("window already registered", metaWindow.title);
         utils.print_stacktrace();
     }
-
-    metaWindow.acc = 0;
 
     if (metaWindow.is_override_redirect()) {
         return false;
