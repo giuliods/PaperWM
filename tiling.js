@@ -608,6 +608,8 @@ class Space extends Array {
          * 3.35+ has a bug where move_frame sometimes triggers another move back to its original position. Make sure tiled windows are always positioned correctly.
          */
         this.signals.connect(metaWindow, 'position-changed', (w) => {
+            if (inGrab)
+                return
             let f = w.get_frame_rect();
             let clone = w.clone;
             let x = clone.targetX + this.targetX;
